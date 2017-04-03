@@ -1,0 +1,74 @@
+@startuml
+
+' ########## Provider ##########
+interface Provider {
+    + void provide()
+}
+abstract class AbstractProvider {
+    - List<Information> knowHow
+    - BigDecimal requireIncentive
+    - BigDecimal provideProbability
+    + void provide()
+}
+class RandomProvider
+class Providers {
+    + Provider newRandomProvider()
+}
+
+AbstractProvider ..|> Provider
+RandomProvider --|> AbstractProvider
+RandomProvider .r.|> Provider
+Providers .r.> RandomProvider : <<create>>
+
+AbstractProvider "1" o-- "1..*" KnowHow
+
+' ########## Information ##########
+interface Information
+abstract class AbstractInformation {
+    - BigDecimal worth
+}
+class KnowHow
+class ICTInformation
+enum AgricultureInformationType {
+    KNOW_HOW
+    ICT_INFORMATION
+}
+
+AbstractInformation ..|> Information
+KnowHow --|> AbstractInformation
+ICTInformation --|> AbstractInformation
+KnowHow ..|> Information
+ICTInformation .l.|> Information
+
+' ########## Server ##########
+class AISServer << (S,#FF7700) Singleton >>{
+    -{static} AISServer instance
+    - List<ServerAgent> agricultureInformationAgents
+    +{static} AISServer getInstance()
+    + ServerAgent newIncentiveNegotiationAgent()
+    + ServerAgent newInformationNegotiationAgent()
+}
+interface ServerAgent
+abstract class AbstractServerAgent
+class IncentiveNegotiationAgent {
+    + BigDecimal negotiate(KnowHow, BigDecimal)
+}
+class AgricultureInformationAgent {
+    + boolean register(KnowHow)
+}
+class InformationNegotiationAgent
+
+AbstractServerAgent ..|> ServerAgent
+IncentiveNegotiationAgent --|> AbstractServerAgent
+AgricultureInformationAgent --|> AbstractServerAgent
+InformationNegotiationAgent --|> AbstractServerAgent
+IncentiveNegotiationAgent ..|> ServerAgent
+AgricultureInformationAgent ..|> ServerAgent
+InformationNegotiationAgent ..|> ServerAgent
+AISServer ..> IncentiveNegotiationAgent : <<create>>
+AISServer ..> AgricultureInformationAgent : <<create>>
+AISServer ..> InformationNegotiationAgent : <<create>>
+
+Provider -- IncentiveNegotiationAgent
+
+@enduml
