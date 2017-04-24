@@ -1,0 +1,41 @@
+@startuml
+
+actor RealProvider as RealProvider
+participant Provider as Provider
+participant AISServer as AISS
+participant AgricultureInformationAgent as AIA
+participant IncentiveNegotiationAgent as INA
+
+create AIA
+AISS -> AIA : << new >> ( with initialize )
+RealProvider -> Provider : provide()
+activate Provider
+Provider -> AISS : getAgricultureInformationAgent(String)
+activate AISS
+Provider <-- AISS : AgricultureInformationAgent
+deactivate AISS
+Provider -> AIA : register(Information)
+activate AIA
+Provider <-- AIA
+deactivate AIA
+deactivate Provider
+
+loop requireIncentive() ( fixed-time )
+    Provider -> AISS : newIncentiveNegotiationAgent()
+    activate AISS
+    create INA
+    AISS -> INA : << new >>
+    Provider <-- AISS : IncentiveNegotiationAgent
+    deactivate AISS
+    Provider -> INA : negotiate(int)
+    activate INA
+    AIA <- INA : getInformationWorth(int)
+    activate AIA
+    AIA --> INA : Information worth
+    deactivate AIA
+    Provider <-- INA : Incentive ( (0.0,1.0], 0.0 means no incentive )
+    deactivate INA
+    deactivate Provider
+end
+
+@enduml

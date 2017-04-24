@@ -3,16 +3,24 @@
 ' ########## Provider ##########
 interface Provider {
     + void provide()
+    + void requireIncentive()
 }
 abstract class AbstractProvider {
+    - int ID
     - List<Information> knowHow
-    - BigDecimal requireIncentive
+    - BigDecimal requiredIncentive
+    - BigDecimal earnedIncentive
     - BigDecimal provideProbability
     + void provide()
+    + void requireIncentive()
 }
-class RandomProvider
+class RandomProvider {
+    + void provide()
+    + void requireIncentive()
+}
 class Providers {
     + Provider newRandomProvider()
+    + void requireIncentive()
 }
 
 AbstractProvider ..|> Provider
@@ -27,7 +35,9 @@ interface Information
 abstract class AbstractInformation {
     - BigDecimal worth
 }
-class KnowHow
+class KnowHow {
+    - int providerID
+}
 class ICTInformation
 enum AgricultureInformationType {
     KNOW_HOW
@@ -45,16 +55,19 @@ class AISServer << (S,#FF7700) Singleton >>{
     -{static} AISServer instance
     - List<ServerAgent> agricultureInformationAgents
     +{static} AISServer getInstance()
+    + ServerAgent getAgricultureInformationAgent(String)
     + ServerAgent newIncentiveNegotiationAgent()
     + ServerAgent newInformationNegotiationAgent()
 }
 interface ServerAgent
 abstract class AbstractServerAgent
 class IncentiveNegotiationAgent {
-    + BigDecimal negotiate(KnowHow, BigDecimal)
+    + BigDecimal negotiate(Information, BigDecimal)
 }
 class AgricultureInformationAgent {
-    + boolean register(KnowHow)
+    - List<Information> agricultureInformation
+    + boolean register(Information)
+    + BigDecimal getInformationWorth(int)
 }
 class InformationNegotiationAgent
 
