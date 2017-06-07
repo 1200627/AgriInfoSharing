@@ -12,9 +12,10 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception{
         Parent root = FXMLLoader.load(getClass().getResource("/main.fxml"));
-        primaryStage.setTitle("AgriInfoSharingSimulator");
+        primaryStage.setTitle("AgricultureInformationSharingSimulator");
         primaryStage.setScene(new Scene(root));
         primaryStage.show();
+        primaryStage.setOnCloseRequest(event -> SimulatorModel.getInstance().stop());
     }
 
 

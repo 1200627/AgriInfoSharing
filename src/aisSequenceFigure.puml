@@ -5,9 +5,17 @@ participant Provider as Provider
 participant AISServer as AISS
 participant AgricultureInformationAgent as AIA
 participant IncentiveNegotiationAgent as INA
+participant InformationNegotiationAgent as InfNA
+participant Information as Inf
+participant User as User
+actor RealUser as RealUser
 
 create AIA
 AISS -> AIA : << new >> ( with initialize )
+RealProvider -> Provider : makeKnowHow(int)
+activate Provider
+Provider -> Provider : evaluateKnowHow()
+deactivate Provider
 RealProvider -> Provider : provide()
 activate Provider
 Provider -> AISS : getAgricultureInformationAgent(String)
@@ -20,14 +28,39 @@ Provider <-- AIA
 deactivate AIA
 deactivate Provider
 
+loop decide(), provide() ( fixed-time )
+    Provider -> AISS : getAgricultureInformationAgent(String)
+    activate Provider
+    activate AISS
+    Provider <-- AISS : AgricultureInformationAgent
+    deactivate AISS
+    Provider -> AIA : register(Information)
+    activate AIA
+    Provider <-- AIA
+    deactivate AIA
+    deactivate Provider
+end
+
+loop requireInformation() ( fixed-time )
+    InfNA <- User : getAgricultureInformation()
+    activate InfNA
+    InfNA --> User : information
+    deactivate InfNA
+    Inf <- User : use()
+    activate Inf
+    Inf --> User
+    deactivate Inf
+end
+
 loop requireIncentive() ( fixed-time )
     Provider -> AISS : newIncentiveNegotiationAgent()
+    activate Provider
     activate AISS
     create INA
     AISS -> INA : << new >>
     Provider <-- AISS : IncentiveNegotiationAgent
     deactivate AISS
-    Provider -> INA : negotiate(int)
+    Provider -> INA : negotiate(int, BigDecimal)
     activate INA
     AIA <- INA : getInformationWorth(int)
     activate AIA

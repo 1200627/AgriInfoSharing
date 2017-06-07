@@ -1,26 +1,34 @@
 @startuml
-
+' getter/setter は省略
 ' ########## Provider ##########
 interface Provider {
+    + void makeKnowHow(int)
+    + void evaluateKnowHow()
     + void provide()
     + void requireIncentive()
+    + void decide()
 }
 abstract class AbstractProvider {
     - int ID
+    - boolean canRequire
     - List<Information> knowHow
+    - int knowHowPointer
     - BigDecimal requiredIncentive
     - BigDecimal earnedIncentive
     - BigDecimal provideProbability
+    - BigDecimal contribution
+    + void makeKnowHow(int)
+    + void evaluateKnowHow()
     + void provide()
     + void requireIncentive()
+    + void decide()
 }
 class RandomProvider {
-    + void provide()
-    + void requireIncentive()
+    + void makeKnowHow(int)
+    + void evaluateKnowHow()
 }
 class Providers {
-    + Provider newRandomProvider()
-    + void requireIncentive()
+    +{static} Provider newRandomProvider()
 }
 
 AbstractProvider ..|> Provider
@@ -30,13 +38,46 @@ Providers .r.> RandomProvider : <<create>>
 
 AbstractProvider "1" o-- "1..*" KnowHow
 
+' ########## User ##########
+
+interface User {
+    + void requireInformation()
+}
+
+abstract class AbstractUser{
+    - Consumer selectInformation
+    + void requireInformation()
+}
+
+abstract class SimpleUser {
+}
+
+abstract class DiligentUser {
+}
+
+AbstractUser ..|> User
+SimpleUser --|> AbstractUser
+DiligentUser --|> AbstractUser
+SimpleUser ..|> User
+DiligentUser ..|> User
+User -- InformationNegotiationAgent
+User -- AgricultureInformationAgent
+
 ' ########## Information ##########
-interface Information
+interface Information {
+    + void use()
+    + BigDecimal calculateWorth()
+}
 abstract class AbstractInformation {
-    - BigDecimal worth
+    - BigDecimal rarity
+    - BigDecimal usageCount
+    + void use()
+    + BigDecimal calculateWorth()
 }
 class KnowHow {
     - int providerID
+    +{static} KnowHow newRandomWorthKnowHow()
+    + void consume()
 }
 class ICTInformation
 enum AgricultureInformationType {
@@ -56,20 +97,24 @@ class AISServer << (S,#FF7700) Singleton >>{
     - List<ServerAgent> agricultureInformationAgents
     +{static} AISServer getInstance()
     + ServerAgent getAgricultureInformationAgent(String)
-    + ServerAgent newIncentiveNegotiationAgent()
-    + ServerAgent newInformationNegotiationAgent()
+    +{static} ServerAgent newIncentiveNegotiationAgent()
+    +{static} ServerAgent newInformationNegotiationAgent()
 }
 interface ServerAgent
 abstract class AbstractServerAgent
 class IncentiveNegotiationAgent {
-    + BigDecimal negotiate(Information, BigDecimal)
+    + BigDecimal negotiate(int, BigDecimal)
 }
 class AgricultureInformationAgent {
     - List<Information> agricultureInformation
-    + boolean register(Information)
+    + void register(Information)
+    + void clear()
     + BigDecimal getInformationWorth(int)
+    + void consumeInformation()
 }
-class InformationNegotiationAgent
+class InformationNegotiationAgent{
+    + List<Information> getAllInformation()
+}
 
 AbstractServerAgent ..|> ServerAgent
 IncentiveNegotiationAgent --|> AbstractServerAgent
